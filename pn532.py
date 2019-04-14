@@ -6,9 +6,8 @@ class Pn532(object):
         pass
 
     def recv(self, serial):
-        sleep(0.1)
+        sleep(0.3)
         data = serial.read(100)
-        print(data)
         sleep(0.02)
         return data
 
@@ -37,18 +36,23 @@ class Pn532(object):
         lcs = 0xFF - len + 0x01
         dcs = 0xFF - dsum % 0x100 + 0x01
         redata = b'\x00\x00\xff' + bytes([len, lcs]) + bytes(data) + bytes([dcs, 0x00])
-        # print(redata)
+        #print(redata)
         return redata
 
     def nfcFindCard(self):
         sleep(0.1)
         nfc.write(self.sendToNfc([0xD4, 0x4A, 0x01, 0x00]))
         recdata = self.recv(nfc)
-        # print(bytes(bytearray(recdata)[11:13]))
-        if bytes(bytearray(recdata)[11:13]) == b'\xd5\x4b':
+        if recdata[11:13] == b'\xd5\x4b':
             global nfcing
             nfcing = 1
-            uid = bytes(bytearray(recdata)[17:21])
+            uid = recdata[19:23]
             return uid
         else:
             return 'noCard'
+
+    def nfcGetRecData(self):
+        sleep(0.1)
+        recvdata = self.recv(nfc)
+        len = bytes(bytearray(recvdata)[9:10])
+        return bytes(bytearray(recvdata)[11:11 + int.from_bytes(len, byteorder='big', signed=False)])
