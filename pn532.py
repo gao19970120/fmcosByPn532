@@ -6,13 +6,14 @@ class Pn532(object):
         pass
 
     def recv(self, serial):
-        data = serial.read(50)
+        sleep(0.1)
+        data = serial.read(100)
         print(data)
         sleep(0.02)
         return data
 
     def nfcGetRecData(self):
-        sleep(0.1)
+        sleep(0.5)
         recvdata = self.recv(nfc)
         len = bytes(bytearray(recvdata)[9:10])
         # print(len)
