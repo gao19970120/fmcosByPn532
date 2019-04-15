@@ -41,16 +41,16 @@ class fmos(pn532.Pn532):
 
     def fmosGetRecData(self, le):
         nfcdata = self.nfcGetRecData()
-        if nfcdata[0:2] == b'\xd5\x41':
+        if nfcdata[0:3] == b'\xd5\x41\x00':
             if nfcdata[len(nfcdata) - 2:len(nfcdata)] == b'\x90\x00':
                 if le != None:
                     if (len(nfcdata) == le + 4 )or le == 0:
 
                         if le != 0:
-                            data= nfcdata[2:2 + le]
+                            data= nfcdata[3:3 + le]
                         else:
                             #print(nfcdata[2:len(nfcdata) - 2])
-                            return nfcdata[2:len(nfcdata) - 2]
+                            return nfcdata[3:len(nfcdata) - 2]
                     else:
                         return 'error'
             else:
