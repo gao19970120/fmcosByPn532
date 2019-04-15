@@ -1,6 +1,21 @@
 import pn532
 
 
+def TLVanalysis(TLV):
+    sum = 0
+    TLVdict = {}
+    while (1):
+        tag = TLV[sum]
+        length = TLV[sum + 1]
+        value = TLV[sum + 2:sum + 2 + length]
+        TLVdata = {'tag': tag, 'length': length, 'value': value}
+        TLVdict[tag]=value
+        sum = sum + length + 2
+        if sum >= len(TLV):
+            break
+    return TLVdict
+
+
 def strToint16(str):
     int16 = []
     sum = 0
@@ -18,10 +33,10 @@ class fmos(pn532.Pn532):
 
     def sendCommand(self, cla, ins, p1, p2, Data=None, le=None):
         context = [0xD4, 0x40, 0x01, cla, ins, p1, p2]
-        if Data!=None:
-            lc=len(Data)
+        if Data != None:
+            lc = len(Data)
         else:
-            lc=None
+            lc = None
         if lc != None:
             if len(Data) == lc:
                 context = context + [lc] + list(Data)
@@ -42,22 +57,24 @@ class fmos(pn532.Pn532):
     def fmosGetRecData(self, le):
         nfcdata = self.nfcGetRecData()
         if nfcdata[0:3] == b'\xd5\x41\x00':
-            if nfcdata[len(nfcdata) - 2:len(nfcdata)] == b'\x90\x00':
+            if nfcdata[-2:] == b'\x90\x00':
                 if le != None:
-                    if (len(nfcdata) == le + 4 )or le == 0:
+                    if (len(nfcdata) == le + 4) or le == 0:
 
                         if le != 0:
-                            data= nfcdata[3:3 + le]
+                            data = nfcdata[3:3 + le]
                         else:
-                            #print(nfcdata[2:len(nfcdata) - 2])
-                            return nfcdata[3:len(nfcdata) - 2]
+                            # print(nfcdata[2:len(nfcdata) - 2])
+                            return nfcdata[3:- 2]
                     else:
                         return 'error'
             else:
-                return 'error'
-
+                return nfcdata[-2:]
 
     def fmosSelect(self, fileID):
         fileIDlist = strToint16(fileID)
-        answer=self.sendCommand(0x00, 0xA4, 0x00, 0x00, fileIDlist, 0x00)
-        return answer
+        answer = self.sendCommand(0x00, 0xA4, 0x00, 0x00, fileIDlist, 0x00)
+        TLVdict = TLVanalysis(answer)
+        TLVdict1=TLVanalysis(TLVdict[0x6f])
+        print(TLVdict1)
+        return TLVdict
