@@ -5,14 +5,17 @@ def TLVanalysis(TLV):
     sum = 0
     TLVdict = {}
     while (1):
-        tag = TLV[sum]
-        length = TLV[sum + 1]
-        value = TLV[sum + 2:sum + 2 + length]
-        TLVdata = {'tag': tag, 'length': length, 'value': value}
-        TLVdict[tag]=value
-        sum = sum + length + 2
-        if sum >= len(TLV):
-            break
+        try:
+            tag = TLV[sum]
+            length = TLV[sum + 1]
+            value = TLV[sum + 2:sum + 2 + length]
+            TLVdata = {'tag': tag, 'length': length, 'value': value}
+            TLVdict[tag] = value
+            sum = sum + length + 2
+            if sum >= len(TLV):
+                break
+        except:
+            return 'error'
     return TLVdict
 
 
@@ -38,12 +41,8 @@ class fmos(pn532.Pn532):
         else:
             lc = None
         if lc != None:
-            if len(Data) == lc:
-                context = context + [lc] + list(Data)
-            else:
-                print(lc)
-                print(len(Data))
-                print('error len')
+            context = context + [lc] + list(Data)
+
         if le != None:
             context = context + [le]
         if lc == None and le == None:
@@ -56,25 +55,30 @@ class fmos(pn532.Pn532):
 
     def fmosGetRecData(self, le):
         nfcdata = self.nfcGetRecData()
-        if nfcdata[0:3] == b'\xd5\x41\x00':
-            if nfcdata[-2:] == b'\x90\x00':
-                if le != None:
-                    if (len(nfcdata) == le + 4) or le == 0:
+        if nfcdata != 'error':
+            if nfcdata[0:3] == b'\xd5\x41\x00':
+                if nfcdata[-2:] == b'\x90\x00':
+                    if le != None:
+                        if (len(nfcdata) == le + 4) or le == 0:
 
-                        if le != 0:
-                            data = nfcdata[3:3 + le]
+                            if le != 0:
+                                data = nfcdata[3:3 + le]
+                            else:
+                                # print(nfcdata[2:len(nfcdata) - 2])
+                                return nfcdata[3:- 2]
                         else:
-                            # print(nfcdata[2:len(nfcdata) - 2])
-                            return nfcdata[3:- 2]
-                    else:
-                        return 'error'
-            else:
-                return nfcdata[-2:]
+                            return 'error'
+                else:
+                    return nfcdata[-2:]
 
     def fmosSelect(self, fileID):
         fileIDlist = strToint16(fileID)
         answer = self.sendCommand(0x00, 0xA4, 0x00, 0x00, fileIDlist, 0x00)
-        TLVdict = TLVanalysis(answer)
-        TLVdict1=TLVanalysis(TLVdict[0x6f])
-        print(TLVdict1)
-        return TLVdict
+        if answer != 'error':
+            TLVdict = TLVanalysis(answer)
+            TLVdict1 = TLVanalysis(TLVdict[0x6f])
+            DFName = TLVdict1[0x84]
+            ctrlMsg = TLVdict1[0xA5]
+            return DFName
+        else:
+            return 'error'
