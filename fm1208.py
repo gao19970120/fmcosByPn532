@@ -70,7 +70,7 @@ class fmos(pn532.Pn532):
                             return 'error'
                 else:
                     return nfcdata[-2:]
-    def fmosReadRecord(self,):
+    def fmosReadRecord(self, ):
     def fmosSelect(self, fileID):
         fileIDlist = strToint16(fileID)
         answer = self.sendCommand(0x00, 0xA4, 0x00, 0x00, fileIDlist, 0x00)
