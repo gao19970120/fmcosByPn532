@@ -29,7 +29,7 @@ def strToint16(str):
     return int16
 
 
-class fmos(pn532.Pn532):
+class fmcos(pn532.Pn532):
     def __init__(self):
         self.NfcReady()
         pass
@@ -49,11 +49,11 @@ class fmos(pn532.Pn532):
             context = context + [0x00]
         print(bytes(context))
         self.sendToNfc(context)
-        recdata = self.fmosGetRecData(le)
+        recdata = self.fmcosGetRecData(le)
 
         return recdata
 
-    def fmosGetRecData(self, le):
+    def fmcosGetRecData(self, le):
         nfcdata = self.nfcGetRecData()
         if nfcdata != 'error':
             if nfcdata[0:3] == b'\xd5\x41\x00':
@@ -70,8 +70,8 @@ class fmos(pn532.Pn532):
                             return 'error'
                 else:
                     return nfcdata[-2:]
-    def fmosReadRecord(self, ):
-    def fmosSelect(self, fileID):
+    #def fmcosReadRecord(self, ):
+    def fmcosSelect(self, fileID):
         fileIDlist = strToint16(fileID)
         answer = self.sendCommand(0x00, 0xA4, 0x00, 0x00, fileIDlist, 0x00)
         if answer != 'error':
