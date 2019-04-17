@@ -1,17 +1,17 @@
 import pn532
 
 
-def TLVanalysis(TLV):
+def TLVanalysis(TLV, tagLen=1):
     sum = 0
     TLVdict = {}
     while (1):
         try:
-            tag = TLV[sum]
-            length = TLV[sum + 1]
-            value = TLV[sum + 2:sum + 2 + length]
+            tag = TLV[sum:sum + tagLen]
+            length = TLV[sum + tagLen]
+            value = TLV[sum + tagLen + 1:sum + tagLen + 1 + length]
             TLVdata = {'tag': tag, 'length': length, 'value': value}
             TLVdict[tag] = value
-            sum = sum + length + 2
+            sum = sum + length + tagLen + 1
             if sum >= len(TLV):
                 break
         except:
@@ -70,15 +70,16 @@ class fmcos(pn532.Pn532):
                             return 'error'
                 else:
                     return nfcdata[-2:]
-    #def fmcosReadRecord(self, ):
+
+    # def fmcosReadRecord(self, ):
     def fmcosSelect(self, fileID):
         fileIDlist = strToint16(fileID)
         answer = self.sendCommand(0x00, 0xA4, 0x00, 0x00, fileIDlist, 0x00)
         if answer != 'error':
             TLVdict = TLVanalysis(answer)
-            TLVdict1 = TLVanalysis(TLVdict[0x6f])
-            DFName = TLVdict1[0x84]
-            ctrlMsg = TLVdict1[0xA5]
+            TLVdict1 = TLVanalysis(TLVdict[b'\x6f'])
+            DFName = TLVdict1[b'\x84']
+            ctrlMsg = TLVdict1[b'\xa5']
             return DFName
         else:
             return 'error'
