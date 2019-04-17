@@ -1,5 +1,5 @@
 import pn532
-
+from Crypto.Cipher import DES
 
 def TLVanalysis(TLV, tagLen=1):
     sum = 0
@@ -59,15 +59,15 @@ class fmcos(pn532.Pn532):
             if nfcdata[0:3] == b'\xd5\x41\x00':
                 if nfcdata[-2:] == b'\x90\x00':
                     if le != None:
-                        if (len(nfcdata) == le + 4) or le == 0:
+                        if (len(nfcdata) == le + 5) or le == 0:
 
                             if le != 0:
-                                data = nfcdata[3:3 + le]
+                                return nfcdata[3:3 + le]
                             else:
                                 # print(nfcdata[2:len(nfcdata) - 2])
                                 return nfcdata[3:- 2]
                         else:
-                            return 'error'
+                            return 'error len'
                 else:
                     return nfcdata[-2:]
 
@@ -80,6 +80,7 @@ class fmcos(pn532.Pn532):
             TLVdict1 = TLVanalysis(TLVdict[b'\x6f'])
             DFName = TLVdict1[b'\x84']
             ctrlMsg = TLVdict1[b'\xa5']
+            print(ctrlMsg)
             return DFName
         else:
             return 'error'
