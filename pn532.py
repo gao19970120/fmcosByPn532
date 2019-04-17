@@ -7,7 +7,7 @@ class Pn532(object):
         pass
 
     def recv(self, serial):
-        sleep(0.02)
+        sleep(0.01)
         data = serial.read(100)
         # sleep(0.02)
         #

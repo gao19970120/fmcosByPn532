@@ -55,19 +55,23 @@ class fmcos(pn532.Pn532):
 
     def fmcosGetRecData(self, le):
         nfcdata = self.nfcGetRecData()
+        print(nfcdata)
         if nfcdata != 'error':
             if nfcdata[0:3] == b'\xd5\x41\x00':
                 if nfcdata[-2:] == b'\x90\x00':
-                    if le != None:
-                        if (len(nfcdata) == le + 5) or le == 0:
+                    if len(nfcdata)!=5:
+                        if le != None:
+                            if (len(nfcdata) == le + 5) or le == 0:
 
-                            if le != 0:
-                                return nfcdata[3:3 + le]
+                                if le != 0:
+                                    return nfcdata[3:3 + le]
+                                else:
+                                    # print(nfcdata[2:len(nfcdata) - 2])
+                                    return nfcdata[3:- 2]
                             else:
-                                # print(nfcdata[2:len(nfcdata) - 2])
-                                return nfcdata[3:- 2]
-                        else:
-                            return 'error len'
+                                return 'error len'
+                    else:
+                        return 'success'
                 else:
                     return nfcdata[-2:]
 
